@@ -1,7 +1,7 @@
 $ = jQuery
 
-class Task extends Spine.Model
-  @configure "Task", "name", "done"
+class Item extends Spine.Model
+  @configure "Item", "name", "done"
 
   @extend Spine.Model.Local
 
@@ -14,7 +14,7 @@ class Task extends Spine.Model
   @destroyDone: ->
     rec.destroy() for rec in @done()
 
-class Tasks extends Spine.Controller
+class Items extends Spine.Controller
   events:
    "change   input[type=checkbox]": "toggle"
    "click    .destroy":             "remove"
@@ -52,7 +52,7 @@ class Tasks extends Spine.Controller
     @el.removeClass("editing")
     @item.updateAttributes({name: @input.val()})
 
-class TaskApp extends Spine.Controller
+class Checklist extends Spine.Controller
   events:
     "submit form":   "create"
     "click  .clear": "clear"
@@ -65,35 +65,35 @@ class TaskApp extends Spine.Controller
 
   constructor: ->
     super
-    Task.bind("create",  @addOne)
-    Task.bind("refresh", @addAll)
-    Task.bind("refresh change", @renderCount)
-    Task.fetch()
+    Item.bind("create",  @addOne)
+    Item.bind("refresh", @addAll)
+    Item.bind("refresh change", @renderCount)
+    Item.fetch()
 
-  addOne: (task) =>
-    view = new Tasks(item: task)
+  addOne: (Item) =>
+    view = new Items(item: Item)
     @items.append(view.render().el)
 
   addAll: =>
-    Task.each(@addOne)
+    Item.each(@addOne)
 
   create: (e) ->
     e.preventDefault()
-    Task.create(name: @input.val())
+    Item.create(name: @input.val())
     @input.val("")
 
   clear: ->
-    Task.destroyDone()
+    Item.destroyDone()
 
   renderCount: =>
-    active = Task.active().length
+    active = Item.active().length
     @count.text(active)
 
-    inactive = Task.done().length
+    inactive = Item.done().length
     if inactive
       @clear.show()
     else
       @clear.hide()
 
 $ ->
-  new TaskApp(el: $("#tasks"))
+  new Checklist(el: $("#Items"))
